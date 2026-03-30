@@ -1,0 +1,6 @@
+@model IEnumerable<BlogProjesi.Models.Makale>
+
+@foreach (var makale in Model)
+{
+    @await Html.PartialAsync("_MakaleKart", makale)
+}

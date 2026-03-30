@@ -1,0 +1,162 @@
+@model IEnumerable<BlogProjesi.Models.Makale>
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    var yazarlar = ViewBag.Yazarlar as IEnumerable<BlogProjesi.Models.Kullanici>;
+    var currentSearch = ViewBag.Search as string;
+    var currentYazarId = ViewBag.YazarId as int?;
+    var currentSiralama = ViewBag.Siralama as string;
+    var toplamMakale = (int)ViewBag.ToplamMakale;
+}
+
+<style>
+    .makale-kart {
+        transition: transform 0.3s ease, shadow 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .makale-kart:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+    }
+
+    .card-img-container {
+        padding: 15px;
+        background-color: #f8f9fa;
+    }
+
+    .card-img-top {
+        border-radius: 10px;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .filter-bar {
+        background: #fff;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 40px;
+    }
+
+    #btnDahaFazla {
+        transition: all 0.3s ease;
+    }
+
+    #btnDahaFazla:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="text-center mb-4">
+    <h1 class="display-4 fw-bold text-primary">Blog Dünyası</h1>
+    <p class="lead">Keşfet, Oku ve Paylaş</p>
+</div>
+
+<!-- Filtreleme ve Arama Çubuğu -->
+<div class="filter-bar">
+    <form asp-action="Index" method="get" class="d-flex flex-wrap align-items-center gap-2">
+        <div class="flex-grow-1">
+            <input type="text" name="search" id="inputSearch" class="form-control" placeholder="Hangi makaleyi arıyorsunuz? (Başlık veya içerik)" value="@currentSearch">
+        </div>
+        <div style="min-width: 150px;">
+            <select name="siralama" id="selectSiralama" class="form-select">
+                <option value="yeni" selected="@(currentSiralama == "yeni")">Yeniden Eskiye</option>
+                <option value="eski" selected="@(currentSiralama == "eski")">Eskiden Yeniye</option>
+            </select>
+        </div>
+        <div style="min-width: 150px;">
+            <select name="yazarId" id="selectYazar" class="form-select">
+                <option value="">Tüm Yazarlar</option>
+                @if (yazarlar != null)
+                {
+                    foreach (var yazar in yazarlar)
+                    {
+                        <option value="@yazar.KullaniciId" selected="@(currentYazarId == yazar.KullaniciId)">@yazar.AdSoyad</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary px-4">Filtrele</button>
+        </div>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div>
+                <a asp-controller="Makale" asp-action="Ekle" class="btn btn-success px-4"><i class="bi bi-plus-circle"></i> Makale Ekle</a>
+            </div>
+        }
+    </form>
+</div>
+
+<div class="row" id="makaleKonteyner">
+    @if (Model != null && Model.Any())
+    {
+        @await Html.PartialAsync("_MakaleListesi", Model)
+    }
+    else
+    {
+        <div class="col-12 text-center py-5">
+            <h3 class="text-muted">Aramanıza uygun makale bulunamadı.</h3>
+            <a asp-action="Index" class="btn btn-link">Tüm Makaleleri Göster</a>
+        </div>
+    }
+</div>
+
+@if (toplamMakale > 8)
+{
+    <div class="col-12 text-center mt-4 mb-5" id="loadMoreArea">
+        <button id="btnDahaFazla" class="btn btn-lg btn-outline-secondary px-5 rounded-pill shadow-sm">
+            <span id="loader" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            Daha Fazla Yükle
+        </button>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        let skip = 8;
+        const take = 8;
+        const toplam = @toplamMakale;
+
+        document.getElementById("btnDahaFazla")?.addEventListener("click", function () {
+            const btn = this;
+            const loader = document.getElementById("loader");
+            
+            // Mevcut filtreleri al
+            const search = document.getElementById("inputSearch").value;
+            const yazarId = document.getElementById("selectYazar").value;
+            const siralama = document.getElementById("selectSiralama").value;
+
+            // Butonu kilitle ve loader göster
+            btn.disabled = true;
+            loader.classList.remove("d-none");
+
+            // AJAX Talebi (Fetch API)
+            fetch(`/Home/DahaFazlaYukle?search=${search}&yazarId=${yazarId}&siralama=${siralama}&skip=${skip}&take=${take}`)
+                .then(response => response.text())
+                .then(html => {
+                    if (html.trim().length > 0) {
+                        // Yeni makaleleri konteynere ekle
+                        document.getElementById("makaleKonteyner").insertAdjacentHTML('beforeend', html);
+                        
+                        skip += take; // Atlanacak sayıyı artır
+
+                        // Eğer daha fazla makale kalmadıysa butonu kaldır
+                        if (skip >= toplam) {
+                            document.getElementById("loadMoreArea").classList.add("d-none");
+                        }
+                    } else {
+                        document.getElementById("loadMoreArea").classList.add("d-none");
+                    }
+                })
+                .catch(err => console.error("Yükleme hatası:", err))
+                .finally(() => {
+                    btn.disabled = false;
+                    loader.classList.add("d-none");
+                });
+        });
+    </script>
+}

@@ -1,0 +1,40 @@
+@model BlogProjesi.Models.Kullanici
+@{
+    ViewData["Title"] = "Profil Bilgilerim";
+}
+
+<div class="row mt-5">
+    <div class="col-md-6 mx-auto">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-person-circle"></i> Profil Bilgilerini Güncelle</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Profil" method="post">
+                    <input type="hidden" asp-for="KullaniciId" />
+                    
+                    <div class="mb-3">
+                        <label asp-for="AdSoyad" class="form-label fw-bold">Ad Soyad</label>
+                        <input asp-for="AdSoyad" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Eposta" class="form-label fw-bold">E-Posta Adresi</label>
+                        <input asp-for="Eposta" type="email" class="form-control" required />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Sifre" class="form-label fw-bold">Yeni Şifre (Değiştirmek istemiyorsanız boş bırakın)</label>
+                        <input asp-for="Sifre" type="password" class="form-control" value="" />
+                        <small class="text-muted">Mevcut şifrenizi korumak için bu alanı boş bırakabilirsiniz.</small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill">Bilgilerimi Güncelle</button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

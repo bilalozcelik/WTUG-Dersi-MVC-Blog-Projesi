@@ -1,0 +1,61 @@
+@model IEnumerable<BlogProjesi.Models.Kullanici>
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="row mt-4">
+    <div class="col-12">
+        <h3>Sistem Kullanıcıları Yönetimi</h3>
+        <hr />
+        
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>E-Posta</th>
+                    <th>Mevcut Rol</th>
+                    <th>Rol Değiştir</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var k in Model)
+                {
+                    <tr>
+                        <td class="align-middle">@k.AdSoyad</td>
+                        <td class="align-middle">@k.Eposta</td>
+                        <td class="align-middle">
+                            <span class="badge @(k.Rol == "Admin" ? "bg-danger" : (k.Rol == "Yonetici" ? "bg-warning" : "bg-primary"))">@k.Rol</span>
+                        </td>
+                        <td class="align-middle">
+                            @if (k.Rol != "Admin")
+                            {
+                                <form asp-action="RolDegistir" method="post" class="d-flex w-75">
+                                    <input type="hidden" name="id" value="@k.KullaniciId" />
+                                    <select name="yeniRol" class="form-select form-select-sm me-2">
+                                        <option value="Yazar">Yazar</option>
+                                        <option value="Yonetici">Yönetici</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-success">Güncelle</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Admin rolü değiştirilemez</span>
+                            }
+                        </td>
+                        <td class="align-middle">
+                            @if (k.Rol != "Admin")
+                            {
+                                <form asp-action="KullaniciSil" method="post">
+                                    <input type="hidden" name="id" value="@k.KullaniciId" />
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('@k.AdSoyad isimli kullanıcıyı tamamen silmek istiyor musunuz?');">Sil</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

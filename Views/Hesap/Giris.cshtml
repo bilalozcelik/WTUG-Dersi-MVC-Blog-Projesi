@@ -1,0 +1,28 @@
+@model BlogProjesi.Models.Kullanici
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <h3 class="text-center mb-4">Giriş Yap</h3>
+        <form asp-action="Giris" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="mb-3">
+                <label class="form-label">E-Posta Adresi</label>
+                <input type="email" name="eposta" class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Şifre</label>
+                <input type="password" name="sifre" class="form-control" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+            <div class="text-center mt-3">
+                Kayıtlı değil misiniz? <a asp-action="Kayit">Kayıt Ol</a>
+            </div>
+        </form>
+    </div>
+</div>

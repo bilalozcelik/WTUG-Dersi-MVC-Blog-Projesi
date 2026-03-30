@@ -1,0 +1,40 @@
+@model BlogProjesi.Models.Makale
+@{
+    ViewData["Title"] = "Makale Düzenle";
+}
+
+<div class="row mt-4">
+    <div class="col-md-8 mx-auto">
+        <h3>Makale Düzenle</h3>
+        <hr />
+        <form asp-action="Duzenle" method="post">
+            <input type="hidden" asp-for="MakaleId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="mb-3">
+                <label asp-for="Baslik" class="form-label">Makale Başlığı</label>
+                <input asp-for="Baslik" class="form-control" />
+                <span asp-validation-for="Baslik" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ResimUrl" class="form-label">Resim URL (Link)</label>
+                <input asp-for="ResimUrl" class="form-control" placeholder="Örn: https://example.com/resim.jpg" />
+                <span asp-validation-for="ResimUrl" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Icerik" class="form-label">Makale İçeriği</label>
+                <textarea asp-for="Icerik" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Icerik" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-warning">Değişiklikleri Kaydet</button>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">İptal</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

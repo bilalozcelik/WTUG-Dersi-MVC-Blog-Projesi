@@ -1,0 +1,65 @@
+@model BlogProjesi.Models.Makale
+@{
+    ViewData["Title"] = Model.Baslik;
+}
+
+<div class="row mt-5">
+    <div class="col-md-10 mx-auto">
+        <article>
+            @if (!string.IsNullOrEmpty(Model.ResimUrl))
+            {
+                <img src="@Model.ResimUrl" class="img-fluid rounded mb-4 w-100" alt="@Model.Baslik" style="max-height: 400px; object-fit: cover;">
+            }
+            
+            <h1 class="display-4 fw-bold">@Model.Baslik</h1>
+            
+            <div class="text-muted mb-4 border-bottom pb-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="bi bi-person"></i> Yazar: 
+                    <a asp-controller="Home" asp-action="Index" asp-route-yazarId="@Model.KullaniciId" class="text-decoration-none text-info">
+                        @(Model.Kullanici?.AdSoyad ?? "Bilinmiyor")
+                    </a> | 
+                    <i class="bi bi-calendar"></i> Tarih: @Model.OlusturulmaTarihi.ToString("dd MMMM yyyy HH:mm")
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark border">
+                        <i class="bi bi-eye"></i> @Model.OkunmaSayisi
+                    </span>
+                    <form asp-controller="Makale" asp-action="Begen" asp-route-id="@Model.MakaleId" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-heart-fill"></i> @Model.BegeniSayisi Beğen
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lead" style="white-space: pre-wrap; line-height: 1.8;">
+                @Model.Icerik
+            </div>
+
+            <div class="mt-5 border-top pt-4">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Ana Sayfaya Dön
+                </a>
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var isOwner = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.KullaniciId.ToString();
+                    var rol = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+                    
+                    if (isOwner)
+                    {
+                        <a asp-controller="Makale" asp-action="Duzenle" asp-route-id="@Model.MakaleId" class="btn btn-warning ms-2">Düzenle</a>
+                    }
+                    
+                    if (isOwner || rol == "Admin" || rol == "Yonetici")
+                    {
+                        <form asp-controller="Makale" asp-action="Sil" asp-route-id="@Model.MakaleId" method="post" class="d-inline ms-2">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Bu makaleyi silmek istediğinize emin misiniz?');">Sil</button>
+                        </form>
+                    }
+                }
+            </div>
+        </article>
+    </div>
+</div>

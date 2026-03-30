@@ -1,0 +1,61 @@
+@model BlogProjesi.Models.Makale
+
+<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+    <div class="card h-100 shadow-sm makale-kart">
+        @if (!string.IsNullOrEmpty(Model.ResimUrl))
+        {
+            <div class="card-img-container">
+                <img src="@Model.ResimUrl" class="card-img-top" alt="@Model.Baslik">
+            </div>
+        }
+
+        <div class="card-body d-flex flex-column">
+            <h5 class="card-title fw-bold">@Model.Baslik</h5>
+            <div class="small text-muted mb-2">
+                <a href="/Home/Index?yazarId=@Model.KullaniciId" class="text-decoration-none text-info">
+                    <i class="bi bi-person"></i> @(Model.Kullanici?.AdSoyad ?? "Bilinmiyor")
+                </a>
+            </div>
+            <p class="card-text text-muted small flex-grow-1">
+                @(Model.Icerik.Length > 80 ? Model.Icerik.Substring(0, 80) + "..." : Model.Icerik)
+            </p>
+            
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-light text-dark border">
+                    <i class="bi bi-eye"></i> @Model.OkunmaSayisi
+                </span>
+                <form asp-controller="Makale" asp-action="Begen" asp-route-id="@Model.MakaleId" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger border-0">
+                        <i class="bi bi-heart-fill"></i> @Model.BegeniSayisi
+                    </button>
+                </form>
+            </div>
+
+            <a href="/Makale/Detay/@Model.MakaleId" class="btn btn-sm btn-outline-primary w-100 rounded-pill mt-auto">Devamını Oku</a>
+        </div>
+
+        @if (Context.User.Identity.IsAuthenticated)
+        {
+            var userId = Context.User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var isOwner = userId == Model.KullaniciId.ToString();
+            var rol = Context.User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+            var canDelete = isOwner || rol == "Admin" || rol == "Yonetici";
+
+            if (isOwner || canDelete)
+            {
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                    @if (isOwner)
+                    {
+                        <a href="/Makale/Duzenle/@Model.MakaleId" class="text-warning text-decoration-none small"><i class="bi bi-pencil"></i> Düzenle</a>
+                    }
+                    @if (canDelete)
+                    {
+                        <form action="/Makale/Sil/@Model.MakaleId" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-link text-danger p-0 text-decoration-none small" onclick="return confirm('Silinsin mi?');"><i class="bi bi-trash"></i> Sil</button>
+                        </form>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
