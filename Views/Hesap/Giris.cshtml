@@ -1,3 +1,6 @@
+@* 
+  Bu sayfa "Kullanici" nesnesini model olarak alır. Böylece hata mesajlarını ve validation'ları çalıştırabilir. 
+*@
 @model BlogProjesi.Models.Kullanici
 @{
     ViewData["Title"] = "Giriş Yap";
@@ -6,11 +9,15 @@
 <div class="row justify-content-center mt-5">
     <div class="col-md-4">
         <h3 class="text-center mb-4">Giriş Yap</h3>
+        <!-- asp-action="Giris", formu POST işlemi için HesapController içindeki Giris metoduna bağlar. -->
         <form asp-action="Giris" method="post">
+            
+            @* asp-validation-summary="ModelOnly": Controller tarafında eklenen özel hata mesajlarının (örn. "Şifre Yanlış") burada kırmızı yazıyla listelenmesini sağlar *@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
             <div class="mb-3">
                 <label class="form-label">E-Posta Adresi</label>
+                <!-- Controller'daki parametre isimleri (string eposta, string sifre) ile bu inputların "name" özellikleri aynı olmak zorundadır. -->
                 <input type="email" name="eposta" class="form-control" required />
             </div>
 
@@ -21,6 +28,7 @@
 
             <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
             <div class="text-center mt-3">
+                <!-- HesapController'ın Kayit metoduna giden link bağlantısı -->
                 Kayıtlı değil misiniz? <a asp-action="Kayit">Kayıt Ol</a>
             </div>
         </form>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- @ViewData["Title"] Child sayfalardan (örn Ekle.cshtml) gelen site başlığıdır -->
     <title>@ViewData["Title"] - BlogProjesi</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -14,6 +15,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
+                <!-- Tag Helper (asp-controller, asp-action): URL'leri doğru formatta (/Home/Index) otomatik oluşturur. -->
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BlogProjesi</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +26,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
+                        @* EKRAN GÜVENLİĞİ: Oturum açılmış mı? && Cookie'deki Rolü Admin mi? (Görünürlük sadece kurallarla eşleşenlere özel) *@
                         @if (User.Identity.IsAuthenticated && User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value == "Admin")
                         {
                             <li class="nav-item">
@@ -32,6 +35,7 @@
                         }
                     </ul>
                     <ul class="navbar-nav">
+                        @* EKRAN GÜVENLİĞİ: Siteye biri giriş yapmışsa (Oturum Cookie'si aktifse) bu blok çalışır *@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
@@ -45,6 +49,7 @@
                         }
                         else
                         {
+                            @* Giriş YAPMAMIŞSA "Misafir" görünümü: Giriş Yap ve Kayıt Ol linkleri *@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Hesap" asp-action="Giris">Giriş Yap</a>
                             </li>
@@ -59,6 +64,7 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @* MVC MİMARİSİ: İlgili Linke tıklandığında açılan alt sayfaların (Ekle vb.) HTML kodlarının tamamı Layout içindeki bu "RenderBody()" deliğinden sayfaya çakılır/enjekte edilir. Kalıp mantığı. *@
             @RenderBody()
         </main>
     </div>
@@ -71,6 +77,8 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    @* Sadece alt sayfalardan (Child View'lerden) birinde '@section Scripts' bloğu açılmışsa o özel javascript betiklerini tam bu satırda işlet demektir. *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

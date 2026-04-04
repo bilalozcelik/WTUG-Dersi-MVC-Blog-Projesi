@@ -1,6 +1,10 @@
+@* 
+  Makale Listesi (IEnumerable) modeli ile çalışan anasayfa
+*@
 @model IEnumerable<BlogProjesi.Models.Makale>
 @{
     ViewData["Title"] = "Ana Sayfa";
+    // Controller'ın "ViewBag" çantasına koyduğu yazar listesi, filtre metinleri gibi veriler değişkene alınır. (ViewBag sayfalar arası ham nesne taşır)
     var yazarlar = ViewBag.Yazarlar as IEnumerable<BlogProjesi.Models.Kullanici>;
     var currentSearch = ViewBag.Search as string;
     var currentYazarId = ViewBag.YazarId as int?;
@@ -55,7 +59,7 @@
     <p class="lead">Keşfet, Oku ve Paylaş</p>
 </div>
 
-<!-- Filtreleme ve Arama Çubuğu -->
+<!-- Filtreleme ve Arama Çubuğu (Form GET yöntemi kullanır, url parametresi şeklinde gönderir ve arama linki paylaşılabilir olur) -->
 <div class="filter-bar">
     <form asp-action="Index" method="get" class="d-flex flex-wrap align-items-center gap-2">
         <div class="flex-grow-1">
@@ -82,6 +86,7 @@
         <div>
             <button type="submit" class="btn btn-primary px-4">Filtrele</button>
         </div>
+        @* Eğer siteye giriş yapmış biri (Yazar/Admin vb) bakıyorsa ona "+" Makale Ekle butonu gösterilir *@
         @if (User.Identity.IsAuthenticated)
         {
             <div>
@@ -92,6 +97,7 @@
 </div>
 
 <div class="row" id="makaleKonteyner">
+    @* Model (Liste) doluysa, Parçalı Görünüm (Partial View) vasıtasıyla ekranda kartları bas. Kod tekrarını önler. *@
     @if (Model != null && Model.Any())
     {
         @await Html.PartialAsync("_MakaleListesi", Model)
@@ -105,6 +111,7 @@
     }
 </div>
 
+@* Eğer veritabanındaki toplam satır sayısı 8'den (yani gösterilen ilk limitten) fazlaysa "Daha Fazla Yükle" butonu çıksın *@
 @if (toplamMakale > 8)
 {
     <div class="col-12 text-center mt-4 mb-5" id="loadMoreArea">
@@ -117,6 +124,7 @@
 
 @section Scripts {
     <script>
+        // Sayfalama (Pagination) yerine, modern dinamik (AJAX) sayfa alttan yükleme betiği.
         let skip = 8;
         const take = 8;
         const toplam = @toplamMakale;
@@ -134,17 +142,17 @@
             btn.disabled = true;
             loader.classList.remove("d-none");
 
-            // AJAX Talebi (Fetch API)
+            // AJAX Talebi (Fetch API) - Tüm sayfayı yenilemeden arkadan parça HTML çeker
             fetch(`/Home/DahaFazlaYukle?search=${search}&yazarId=${yazarId}&siralama=${siralama}&skip=${skip}&take=${take}`)
                 .then(response => response.text())
                 .then(html => {
                     if (html.trim().length > 0) {
-                        // Yeni makaleleri konteynere ekle
+                        // Yeni makaleleri konteynere (Grid listesine) ekle
                         document.getElementById("makaleKonteyner").insertAdjacentHTML('beforeend', html);
                         
-                        skip += take; // Atlanacak sayıyı artır
+                        skip += take; // Atlanacak (Listelenmiş) sayıyı güncelle
 
-                        // Eğer daha fazla makale kalmadıysa butonu kaldır
+                        // Eğer daha fazla makale kalmadıysa butonu komple kaldır
                         if (skip >= toplam) {
                             document.getElementById("loadMoreArea").classList.add("d-none");
                         }

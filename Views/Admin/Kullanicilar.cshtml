@@ -1,5 +1,10 @@
+@* 
+  Bu sayfa, AdminController'daki "Kullanicilar" Action'ından dönen veriyle çalışır.
+  @model satırı, bu sayfaya "Kullanici" sınıfından oluşan bir Liste (IEnumerable) geleceğini belirtir.
+*@
 @model IEnumerable<BlogProjesi.Models.Kullanici>
 @{
+    // ViewData["Title"], Layout (Ana ekran kalıbı) içindeki tarayıcı sekme başlığına gönderilen veridir.
     ViewData["Title"] = "Kullanıcı Yönetimi";
 }
 
@@ -19,18 +24,28 @@
                 </tr>
             </thead>
             <tbody>
+                @* 
+                   Veritabanından gelen Kullanıcı listesini satır satır HTML tablosuna dönüştürmek için 
+                   C#'ın foreach döngüsü Razor formatında (@foreach) kullanılır. 
+                *@
                 @foreach (var k in Model)
                 {
                     <tr>
                         <td class="align-middle">@k.AdSoyad</td>
                         <td class="align-middle">@k.Eposta</td>
                         <td class="align-middle">
+                            @* Rolüne göre Badge (etike) rengi değiştiren pratik bir if-else (Ternary) kodu *@
                             <span class="badge @(k.Rol == "Admin" ? "bg-danger" : (k.Rol == "Yonetici" ? "bg-warning" : "bg-primary"))">@k.Rol</span>
                         </td>
                         <td class="align-middle">
                             @if (k.Rol != "Admin")
                             {
+                                <!-- 
+                                    ASP Tag Helpers (asp-action vb.): HTML kodunu MVC standartlarına göre derler.
+                                    Bu form Submit edildiğinde 'AdminController' içindeki 'RolDegistir' metoduna POST olarak gidecektir. 
+                                -->
                                 <form asp-action="RolDegistir" method="post" class="d-flex w-75">
+                                    <!-- Hangi kullanıcının rolü değişecek? Form bunu bilmek zorundadır. Bu yüzden ID bilgisi "hidden" (gizli) olarak gönderilir -->
                                     <input type="hidden" name="id" value="@k.KullaniciId" />
                                     <select name="yeniRol" class="form-select form-select-sm me-2">
                                         <option value="Yazar">Yazar</option>
@@ -48,7 +63,9 @@
                             @if (k.Rol != "Admin")
                             {
                                 <form asp-action="KullaniciSil" method="post">
+                                    <!-- Silinecek ID -->
                                     <input type="hidden" name="id" value="@k.KullaniciId" />
+                                    <!-- onclick ile formu silmeden önce tarayıcıda bir Onay (Confirm) penceresi çıkardık. -->
                                     <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('@k.AdSoyad isimli kullanıcıyı tamamen silmek istiyor musunuz?');">Sil</button>
                                 </form>
                             }

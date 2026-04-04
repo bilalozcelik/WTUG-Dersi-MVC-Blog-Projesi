@@ -1,3 +1,7 @@
+@* 
+  Veritabanına bir yansıma yapılacağı için sayfa Makale modeline sıkıca bağlanır (Strongly Typed View).
+  Böylece asp-for="..." özellikleri otomatik Makale sınıfından özellik (Baslik, Icerik vb.) bekler. 
+*@
 @model BlogProjesi.Models.Makale
 @{
     ViewData["Title"] = "Yeni Makale Ekle";
@@ -7,12 +11,15 @@
     <div class="col-md-8 mx-auto">
         <h3>Yeni Makale Ekle</h3>
         <hr />
+        <!-- POST Form: Tag helper asp-action="Ekle" ile MakaleController içindeki [HttpPost] Ekle metoduna gider  -->
         <form asp-action="Ekle" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
             <div class="mb-3">
+                @* asp-for="Baslik": Model.Baslik'ı temsil eder. Name ID özelliklerini kendi otomatik doldurur. *@
                 <label asp-for="Baslik" class="form-label">Makale Başlığı</label>
                 <input asp-for="Baslik" class="form-control" />
+                @* asp-validation-for: C#'taki [Required] hata mesajını boş bırakıldığında anında ekrana basar. (JavaScript Yardımıyla) *@
                 <span asp-validation-for="Baslik" class="text-danger"></span>
             </div>
 
@@ -35,5 +42,6 @@
 </div>
 
 @section Scripts {
+    @* Sayfa submit olmadan önce ("Frontend" Anında Validasyon) tarayıcıda JavaScript kurallarını işletmek için Microsoft'un Partial dosyası çağrılır. Sürekli Server'a post atmasını önler. *@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
